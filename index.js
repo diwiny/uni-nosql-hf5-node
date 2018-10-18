@@ -9,8 +9,8 @@ const readFile = promisify(fs.readFile)
 
 const options = {
 	url: 'mongodb://localhost:27017',
-	dbName: 'hf05-node',
-	collectionName: 'songJS'
+	dbName: 'radio',
+	collectionName: 'slay'
 }
 
 const client = new MongoClient(options.url, {
