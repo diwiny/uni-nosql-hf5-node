@@ -2,9 +2,10 @@ const MongoClient = require('mongodb').MongoClient;
 const fs = require('fs')
 const promisify = require('util').promisify
 const ora = require('ora')
+const path = require('path')
 
-const readdir = promisify(fs.readdir);
-const readFile = promisify(fs.readFile);
+const readdir = promisify(fs.readdir)
+const readFile = promisify(fs.readFile)
 
 const options = {
 	url: 'mongodb://localhost:27017',
@@ -23,12 +24,11 @@ client.connect(async function (err) {
 	const db = client.db(options.dbName);
 	let data = []
 	spinner.text = 'Reading the directories'
-	let dir = await readdir('./data')
+	let dir = await readdir(path.resolve(__dirname, 'data'))
 	spinner.text = `Read ${dir.length} filenames`
-	dir.forEach(async (fileName) => {
-		let dataContainment = fs.readFileSync('./data/' + fileName)
-		data.push(JSON.parse(dataContainment))
-	})
+	data = await Promise.all(dir.map((fileName) => {
+		return readFile(path.resolve(__dirname, 'data', fileName)).then((fileData) => JSON.parse(fileData))
+	}))
 
 	spinner.text = `Dropping collection: ${options.collectionName}`
 	db.dropCollection(options.collectionName)
